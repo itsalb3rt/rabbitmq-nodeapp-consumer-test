@@ -4,12 +4,14 @@
   "description": "A test using rabbitmq + sockerio",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "serve": "node src/app.js"
   },
   "author": "Albert Hidalgo",
   "license": "ISC",
   "dependencies": {
     "amqplib": "^0.5.5",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "socket.io": "^2.3.0"
   }
