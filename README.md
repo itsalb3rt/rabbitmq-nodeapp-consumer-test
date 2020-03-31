@@ -15,3 +15,7 @@ $ git clone https://github.com/itsalb3rt/rabbitmq-nodeapp-consumer-test
 ```bash
 $ npm run serve
 ```
+
+---
+
+Example for https://github.com/itsalb3rt/traefik-rabbitmq-docker-compose
