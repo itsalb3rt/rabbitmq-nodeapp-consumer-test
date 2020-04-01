@@ -7,7 +7,7 @@ dotenv.config();
 
 let app = express()
 let router = express.Router()
-let server = require('http').Server(app) 
+let server = require('http').Server(app)
 let socketIO = require('socket.io')(server)
 
 let calcSocket = socketIO.of('/calc')
@@ -19,37 +19,41 @@ rabbitMQHandler((connection) => {
     }
     var mainQueue = 'calc_sum'
 
-    channel.assertQueue('', {exclusive: true}, (err, queue) => {
+    channel.assertQueue('', { exclusive: true }, (err, queue) => {
       if (err) {
         throw new Error(err)
       }
       channel.bindQueue(queue.queue, mainQueue, '')
       channel.consume(queue.que, (msg) => {
-        var result = JSON.stringify({result: Object.values(JSON.parse(msg.content.toString()).task).reduce((accumulator, currentValue) => parseInt(accumulator) + parseInt(currentValue)) });
-        calcSocket.emit('calc', result)
+
+        let task = JSON.parse(msg.content.toString())
+        let result = { result: Number(task.task.a) + Number(task.task.b) };
+
+        calcSocket.emit('calc', JSON.stringify(result))
+
       })
-    }, {noAck: true})
+    }, { noAck: true })
   })
 })
 
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use('/api', router)
 router.route('/calc/sum').post((req, res) => {
-    rabbitMQHandler((connection) => {
-      connection.createChannel((err, channel) => {
-        if (err) {
-          throw new Error(err)
-        }
-        var ex = 'calc_sum'
-        var msg = JSON.stringify({task: req.body });
+  rabbitMQHandler((connection) => {
+    connection.createChannel((err, channel) => {
+      if (err) {
+        throw new Error(err)
+      }
+      var ex = 'calc_sum'
+      var msg = JSON.stringify({ task: req.body });
 
-        channel.publish(ex, '', new Buffer(msg), {persistent: false})
+      channel.publish(ex, '', new Buffer(msg), { persistent: false })
 
-        channel.close(() => {connection.close()})
-      })
+      channel.close(() => { connection.close() })
     })
   })
-  
+})
+
 server.listen(process.env.EXPOSED_PORT, '0.0.0.0',
   () => {
     console.log(`Running at http://localhost:${process.env.EXPOSED_PORT}`)
