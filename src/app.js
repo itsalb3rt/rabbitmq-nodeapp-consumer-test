@@ -27,7 +27,7 @@ rabbitMQHandler((connection) => {
       channel.consume(queue.que, (msg) => {
 
         let task = JSON.parse(msg.content.toString())
-        let result = { result: Number(task.task.a) + Number(task.task.b) };
+        let result = { result: Number(task.a) + Number(task.b) };
 
         calcSocket.emit('calc', JSON.stringify(result))
 
@@ -45,7 +45,7 @@ router.route('/calc/sum').post((req, res) => {
         throw new Error(err)
       }
       var ex = 'calc_sum'
-      var msg = JSON.stringify({ task: req.body });
+      var msg = JSON.stringify(req.body);
 
       channel.publish(ex, '', new Buffer(msg), { persistent: false })
 
